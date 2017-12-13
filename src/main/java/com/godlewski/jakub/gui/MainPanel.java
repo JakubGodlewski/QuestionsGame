@@ -1,5 +1,6 @@
 package com.godlewski.jakub.gui;
 
+import com.godlewski.jakub.classes.Category;
 import com.godlewski.jakub.classes.Question;
 import com.godlewski.jakub.classes.User;
 import com.godlewski.jakub.dao.DatabaseInterfaceImpl;
@@ -16,13 +17,15 @@ public class MainPanel extends JPanel{
     private StartNewGamePanel startNewGamePanel;
     private UsersRankingPanel usersRankingPanel;
     private java.util.List<Question> questions;
+    private java.util.List<Category> categories;
 
     public MainPanel(User user) {
         super(new CardLayout());
 
         this.questions = DatabaseInterfaceImpl.getInstance().selectQuestion();
+        this.categories = DatabaseInterfaceImpl.getInstance().selectCategory();
         questions.sort((x1,x2) -> Integer.compare(x1.getDifficulty(), x2.getDifficulty()));
-        gamePanel = new GamePanel(questions, this, user);
+        gamePanel = new GamePanel(questions, categories, this, user);
         startNewGamePanel = new StartNewGamePanel();
         usersRankingPanel = new UsersRankingPanel();
 

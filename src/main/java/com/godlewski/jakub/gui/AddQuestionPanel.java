@@ -141,6 +141,15 @@ public class AddQuestionPanel extends JPanel {
 
     private void add()
     {
+        if(taQuestion.getText().isEmpty() || tfAnswer1.getText().isEmpty() || tfAnswer3.getText().isEmpty() || tfAnswer4.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Fill question and all answers");
+            return;
+        }
+
+        if(!rbAnswer1.isSelected() && !rbAnswer2.isSelected() && !rbAnswer3.isSelected() && !rbAnswer4.isSelected() ) {
+            JOptionPane.showMessageDialog(null, "Choose correct answer");
+            return;
+        }
         String correctAnswer ="";
         if(rbAnswer1.isSelected())
             correctAnswer = tfAnswer1.getText();

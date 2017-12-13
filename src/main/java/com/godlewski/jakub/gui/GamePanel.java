@@ -1,5 +1,6 @@
 package com.godlewski.jakub.gui;
 
+import com.godlewski.jakub.classes.Category;
 import com.godlewski.jakub.classes.Question;
 import com.godlewski.jakub.classes.User;
 import com.godlewski.jakub.dao.DatabaseInterfaceImpl;
@@ -32,19 +33,23 @@ public class GamePanel extends JPanel{
     private JButton btnResign = new JButton("Resign");
     private java.util.List<JLabel> lblAwardsList;
     private java.util.List<Question> questions;
+    private java.util.List<Category> categories;
+    private JPanel panelQuestionAnswers;
     int idQuestion = 0;
     int gridY = 0;
     int[] awards = {1000000, 500000, 250000, 125000, 75000, 40000, 20000, 10000, 5000, 2000, 1000, 500, 0};
     int idAward;
     User user;
     MainPanel mainPanel;
+    boolean is5050;
 
-    public GamePanel(java.util.List<Question> questions, MainPanel mainPanel, User user)
+    public GamePanel(java.util.List<Question> questions, java.util.List<Category> categories, MainPanel mainPanel, User user)
     {
         super(new GridBagLayout());
 
         this.questions = questions;
         this.mainPanel = mainPanel;
+        this.categories = categories;
         this.user = user;
         btn5050.setPreferredSize(new Dimension(85, 40));
         btnAskTheAudience.setPreferredSize(new Dimension(85, 40));
@@ -116,7 +121,7 @@ public class GamePanel extends JPanel{
         btnAnswerD.setPreferredSize(new Dimension(85, 40));
 
 
-        JPanel panelQuestionAnswers = new JPanel(new GridBagLayout());
+        this.panelQuestionAnswers = new JPanel(new GridBagLayout());
         gbcPosition.gridx = 0;
         gbcPosition.gridy = 0;
         panelQuestionAnswers.add(panelQuestion, gbcPosition);
@@ -127,16 +132,6 @@ public class GamePanel extends JPanel{
         gbcPosition.gridy = 2;
         panelQuestionAnswers.add(btnResign, gbcPosition);
         btnResign.addActionListener(x -> resign());
-        panelQuestionAnswers.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.BLACK,3, true),
-                "QUESTION",
-                TitledBorder.CENTER,
-                TitledBorder.DEFAULT_POSITION,
-                new Font("sans-serif", Font.BOLD, 17),
-                Color.BLACK
-        ));
-
-
 
         JPanel panelAwards = new JPanel(new GridBagLayout());
         lblAwardsList = new ArrayList<>();
@@ -181,6 +176,22 @@ public class GamePanel extends JPanel{
     private void fillFileds()
     {
         Question question = questions.get(idQuestion);
+        Category category = null;
+        for(Category c: categories) {
+            if(c.getId() == question.getCategoryId())
+                category = c;
+        }
+        if(category == null) {
+            category = new Category(0, "Inne");
+        }
+        panelQuestionAnswers.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.BLACK,3, true),
+                category.getName().toUpperCase(),
+                TitledBorder.CENTER,
+                TitledBorder.DEFAULT_POSITION,
+                new Font("sans-serif", Font.BOLD, 17),
+                Color.BLACK
+        ));
         lblQuestion.setText(question.getQuestion());
         List<String> answers = new ArrayList<>();
         answers.add(question.getAnswer1());
@@ -218,6 +229,7 @@ public class GamePanel extends JPanel{
                 fillFileds();
             else
                 endOfGame();
+            is5050 = false;
         }
         else
         {
@@ -227,7 +239,7 @@ public class GamePanel extends JPanel{
             endOfGame();
         }
 
-        if(!btn5050.isEnabled())
+        if(!is5050)
         {
             btnAnswerA.setEnabled(true);
             btnAnswerB.setEnabled(true);
@@ -298,6 +310,7 @@ public class GamePanel extends JPanel{
 
     public void newGame()
     {
+        is5050 = false;
         this.questions = DatabaseInterfaceImpl.getInstance().selectQuestion();
         questions.sort((x1,x2) -> Integer.compare(x1.getDifficulty(), x2.getDifficulty()));
         idQuestion = 0;
@@ -315,6 +328,7 @@ public class GamePanel extends JPanel{
 
     private void lifeline5050()
     {
+        is5050 = true;
         Question question = questions.get(idQuestion);
         String correct = question.getCorrectAnswer();
         List<JButton> btnList = new ArrayList<>();
@@ -356,7 +370,7 @@ public class GamePanel extends JPanel{
         String correct = getCorrect(question);
         String incorrect ="";
 
-        if(btn5050.isEnabled())
+        if(!is5050)
         {
             do {
                 random2 = (int)(Math.random()*4);
@@ -503,7 +517,7 @@ public class GamePanel extends JPanel{
         long questionDifficulty = question.getDifficulty();
         int correctPecent;
 
-        if(btn5050.isEnabled())
+        if(!is5050)
         {
             int[] incorrectPercents = new int[3];
 

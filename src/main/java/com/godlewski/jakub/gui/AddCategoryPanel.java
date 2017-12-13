@@ -57,6 +57,10 @@ public class AddCategoryPanel extends JPanel {
 
     private void add()
     {
+        if(tfName.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Fill category name");
+            return;
+        }
         Category category = new Category(0, tfName.getText());
         DatabaseInterfaceImpl.getInstance().insertCategory(category);
         clear();
